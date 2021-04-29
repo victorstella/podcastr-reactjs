@@ -112,7 +112,7 @@ export default function Home( props: HomeProps ) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await api.get( 'episodes', {         //The params object defines que query parameters of the api request
+  const { data } = await api.get( 'episodes', {         //The params object defines all the query parameters of the API request
     params: {                                           //'episodes?_limit=12&_sort=published_at&_order=desc'
       _limit: 12,
       _sort: 'published_at',
@@ -141,6 +141,6 @@ export const getStaticProps: GetStaticProps = async () => {
       latestEpisodes,
       allEpisodes
     },
-    revalidate: 60 * 60 * 8       //updates the statuc html every 8 hours
+    revalidate: 60 * 60 * 8       //updates the static html every 8 hours
   }
 }
