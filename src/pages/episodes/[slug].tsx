@@ -60,14 +60,30 @@ export default function Episode( { episode }: EpisodeProps ) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const { data } = await api.get( 'episodes', {
+    params: {
+      _limit: 2,
+      _sort: 'published_at',
+      _order: 'desc'
+    }
+  } )
+
+  const paths = data.map( episode => {
+    return {
+      params: {
+        slug: episode.id
+      }
+    }
+  } )
+
   return {
-    paths: [],
-    fallback: 'blocking'
-  }
+    paths,                    //fallback: true or 'blocking' are called Incremental Static Regeneration. It can preload
+    fallback: 'blocking'      //some desired paths at the NextJS server using SSG and load new ones as required during navigation
+  }         //if use fallback: true, it's necessary to import the useRouter function from Next to detect when some other page is loading
 }
 
 export const getStaticProps: GetStaticProps = async ( context ) => {
-  const { slug } = context.params
+  const { slug } = context.params                         //get the query parameters from the context
   const { data } = await api.get( `/episodes/${ slug }` )
 
   const episode = {
