@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Slider from 'rc-slider';
 
@@ -7,8 +7,24 @@ import { PlayerContext } from '../../contexts/PlayerContext';
 import 'rc-slider/assets/index.css';
 import styles from './styles.module.scss'
 
+
 export default function Player() {
-  const { episodeList, currentEpisodeIndex } = useContext( PlayerContext )
+
+  const audioRef = useRef<HTMLAudioElement>( null )
+
+  const {
+    episodeList,
+    currentEpisodeIndex,
+    isPlaying,
+    setPlayingState
+  } = useContext( PlayerContext )
+
+  useEffect( () => {
+    if( !audioRef.current ) return
+
+    if( isPlaying ) audioRef.current.play()
+    else audioRef.current.pause()
+  }, [ isPlaying ] )
   
   const episode = episodeList[ currentEpisodeIndex ]
 
@@ -62,7 +78,10 @@ export default function Player() {
         { episode && (     //&& and || are conditional structures. (param) && => if(param) and (param) || => if(!param)
           <audio
             src={ episode.url }
+            ref={ audioRef }
             autoPlay
+            onPlay={ () => setPlayingState( true ) }
+            onPause={ () => setPlayingState( false ) }
           />
         ) }
 
@@ -73,8 +92,17 @@ export default function Player() {
           <button type="button" disabled={ !episode }>
             <img src="/play-previous.svg" alt="Play Previous"/>
           </button>
-          <button type="button" className={ styles.playButton } disabled={ !episode }>
-            <img src="/play.svg" alt="Play"/>
+          <button
+            type="button"
+            className={ styles.playButton }
+            disabled={ !episode }
+            onClick={ () => setPlayingState( !isPlaying ) }
+          >
+            { isPlaying ? 
+              <img src="/pause.svg" alt="Pause"/>
+            :
+              <img src="/play.svg" alt="Play"/>
+            }
           </button>
           <button type="button" disabled={ !episode }>
             <img src="/play-next.svg" alt="Play Next"/>
