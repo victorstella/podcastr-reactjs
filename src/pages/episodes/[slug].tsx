@@ -1,10 +1,13 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { format, parseISO } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
+import Head from 'next/head'
+import Link from 'next/link';
+import Image from 'next/image';
+
 import { api } from '../../services/api';
 import { durationToString } from '../../utils/durationToString';
-import Image from 'next/image';
-import Link from 'next/link';
+import { usePlayer } from '../../contexts/PlayerContext';
 
 import styles from './episode.module.scss'
 
@@ -24,9 +27,15 @@ type EpisodeProps = {
   episode: Episode
 }
 
-export default function Episode( { episode }: EpisodeProps ) {
+export default function Episode( props: EpisodeProps ) {
+  const { play } = usePlayer()
+
   return(
     <div className={ styles.episode }>
+      <Head>
+        <title>{ props.episode.title } | Podcastr</title>
+      </Head>
+
       <div className={ styles.thumbnailContainer }>
         <Link href="/">
           <button type="button">
@@ -36,24 +45,24 @@ export default function Episode( { episode }: EpisodeProps ) {
         <Image
           width={ 700 }
           height={ 160 }
-          src={ episode.thumbnail }
+          src={ props.episode.thumbnail }
           objectFit="cover"
         />
-        <button type="button">
+        <button type="button" onClick={ () => play( props.episode ) }>
           <img src="/play.svg" alt="Play Episode"/>
         </button>
       </div>
 
       <header>
-        <h1>{ episode.title }</h1>
-        <span>{ episode.members }</span>
-        <span>{ episode.publishedAt }</span>
-        <span>{ episode.durationAsString }</span>
+        <h1>{ props.episode.title }</h1>
+        <span>{ props.episode.members }</span>
+        <span>{ props.episode.publishedAt }</span>
+        <span>{ props.episode.durationAsString }</span>
       </header>
 
       <div
         className={ styles.description }
-        dangerouslySetInnerHTML={{ __html: episode.description }}
+        dangerouslySetInnerHTML={{ __html: props.episode.description }}
       />
     </div>
   )
